@@ -10,7 +10,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token = super(MyTokenObtainPairSerializer, cls).get_token(user)
 
         # Add custom claims
-        token['fav_color'] = user.fav_color
+        token['rol'] = user.rol
         return token
 
 
@@ -22,11 +22,12 @@ class CustomUserSerializer(serializers.ModelSerializer):
         required=True
     )
     username = serializers.CharField(required=True)
+    rol = serializers.CharField(required=True)
     password = serializers.CharField(min_length=8, write_only=True, required=True)
 
     class Meta:
         model = CustomUser
-        fields = ('email', 'username', 'password')
+        fields = ('email', 'username', 'password', 'rol' )
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
