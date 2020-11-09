@@ -63,7 +63,7 @@ class UsuarioLogin(mixins.RetrieveModelMixin,
 
         ldap_uri = os.environ.get('LDAP_URI')
         
-        user = "uid=" + "difcortesgu" + "ou=users,dc=panitapp,dc=co"
+        user = "cn=" + "difcortesgu@unal.edu.co" + ",ou=users,dc=panitapp,dc=co"
         password = "admin"
 
         cnx = ldap.initialize(ldap_uri, bytes_mode=False)
