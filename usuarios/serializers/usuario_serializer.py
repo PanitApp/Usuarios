@@ -1,42 +1,38 @@
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
-from usuarios.models.usuario_model import Usuario
-from usuarios.models.rol_model import Rol
-from usuarios.serializers.rol_serializer import RolSerializer
+from usuarios.models.usuario_model import CustomUser
 
-class UsuarioSerializer(serializers.ModelSerializer):
 
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+
+    @classmethod
+    def get_token(cls, user):
+        token = super(MyTokenObtainPairSerializer, cls).get_token(user)
+
+        # Add custom claims
+        token['fav_color'] = user.fav_color
+        return token
+
+
+class CustomUserSerializer(serializers.ModelSerializer):
+    """
+    Currently unused in preference of the below.
+    """
+    email = serializers.EmailField(
+        required=True
+    )
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(min_length=8, write_only=True, required=True)
 
     class Meta:
-        model = Usuario
-        fields = ['id', 'nombre_usuario', 'contrasena', 'nombres', 'email', 'rol']
+        model = CustomUser
+        fields = ('email', 'username', 'password')
+        extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
-
-        usuario = Usuario(nombre_usuario = validated_data.get("nombre_usuario"),
-                          contrasena = validated_data.get("contrasena"),
-                          nombres = validated_data.get("nombres"),
-                          email = validated_data.get("email"),
-                          rol = validated_data.get("rol"))
-        usuario.save()
-        return usuario
-
-    def update(self, instance, validated_data):
-
-        instance.nombre = validated_data.get("nombre")
-        instance.contrasena = validated_data.get("contrasena")
-        instance.nombres = validated_data.get("nombres")
-        instance.email = validated_data.get("email")
-        instance.rol = validated_data.get("rol")
+        password = validated_data.pop('password', None)
+        instance = self.Meta.model(**validated_data)  # as long as the fields are the same, we can just use this
+        if password is not None:
+            instance.set_password(password)
         instance.save()
         return instance
-
-    def to_representation(self, obj):
-
-        data = super().to_representation(obj)
-
-        rol = Rol.objects.get(id = data["rol"])
-        rolSerializer = RolSerializer(rol)
-
-        data["rol"] = rolSerializer.data
-
-        return data

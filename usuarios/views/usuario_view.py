@@ -1,49 +1,44 @@
-from usuarios.models.usuario_model import Usuario
-from usuarios.serializers.usuario_serializer import UsuarioSerializer
-from rest_framework.views import APIView
+from rest_framework import status, permissions
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework import mixins
-from rest_framework import generics
-
-class UsuarioList(mixins.ListModelMixin,
-                  mixins.CreateModelMixin,
-                  generics.GenericAPIView):
-
-    queryset = Usuario.objects.all()
-    serializer_class = UsuarioSerializer
-
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
-
-    def get_queryset(self):
-        """
-        Optionally restricts the returned purchases to a given user,
-        by filtering against a `username` query parameter in the URL.
-        """
-        queryset = Usuario.objects.all()
-        nombre_usuario = self.request.query_params.get('nombre_usuario', None)
-        if nombre_usuario is not None:
-            queryset = queryset.filter(nombre_usuario=nombre_usuario)
-        return queryset
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
+from usuarios.serializers.usuario_serializer import MyTokenObtainPairSerializer, CustomUserSerializer
 
 
-class UsuarioDetail(mixins.RetrieveModelMixin,
-                    mixins.UpdateModelMixin,
-                    mixins.DestroyModelMixin,
-                    generics.GenericAPIView):
+class ObtainTokenPairWithColorView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
 
-    queryset = Usuario.objects.all()
-    serializer_class = UsuarioSerializer
 
-    def get(self, request, *args, **kwargs):
-        return self.retrieve(request, *args, **kwargs)
+class CustomUserCreate(APIView):
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
 
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
+    def post(self, request, format='json'):
+        serializer = CustomUserSerializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.save()
+            if user:
+                json = serializer.data
+                return Response(json, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, *args, **kwargs):
-        return self.destroy(request, *args, **kwargs)
+
+class HelloWorldView(APIView):
+
+    def get(self, request):
+        return Response(data={"hello":"world"}, status=status.HTTP_200_OK)
+
+
+class LogoutAndBlacklistRefreshTokenForUserView(APIView):
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
+
+    def post(self, request):
+        try:
+            refresh_token = request.data["refresh_token"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response(status=status.HTTP_205_RESET_CONTENT)
+        except Exception as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
