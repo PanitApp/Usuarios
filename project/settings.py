@@ -129,7 +129,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 # Custom user model
-AUTH_USER_MODEL = "usuarios.models.CustomUser"
+AUTH_USER_MODEL = "usuarios.CustomUser"
 
 # Rest Framework
 REST_FRAMEWORK = {
