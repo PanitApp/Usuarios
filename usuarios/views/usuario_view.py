@@ -12,19 +12,16 @@ class ObtainTokenPairWithColorView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
 
-class CustomUserCreate(APIView):
+class CustomUserCreate(mixins.ListModelMixin,
+                  mixins.CreateModelMixin,
+                  generics.GenericAPIView):
+
     permission_classes = (permissions.AllowAny,)
     authentication_classes = ()
-
-    def post(self, request, format='json'):
-        serializer = CustomUserSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-            if user:
-                json = serializer.data
-                return Response(json, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
 
 class HelloWorldView(APIView):
 
