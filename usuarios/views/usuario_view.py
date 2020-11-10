@@ -51,6 +51,16 @@ class UsuarioList(mixins.ListModelMixin,
         if username is not None:
             queryset = queryset.filter(username=username)
         return queryset
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+        """
+        queryset = CustomUser.objects.all()
+        rol = self.request.query_params.get('rol', None)
+        if rol is not None:
+            queryset = queryset.filter(rol=rol)
+        return queryset
 
 
 class UsuarioDetail(mixins.RetrieveModelMixin,
