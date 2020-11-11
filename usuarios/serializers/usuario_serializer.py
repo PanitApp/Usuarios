@@ -13,6 +13,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         print(user.password)
         # Add custom claims
         token['rol'] = user.rol
+        token['nombres']
         return token
 
     def validate(self, attrs):
@@ -28,13 +29,14 @@ class CustomUserSerializer(serializers.ModelSerializer):
     )
     username = serializers.CharField(required=True)
     rol = serializers.CharField(required=True)
-    nombres = serializers.CharField(required=True)
+    last_name = serializers.CharField(required=True)
+    first_name = serializers.CharField(required=True)
     password = serializers.CharField(min_length=8, write_only=True, required=True)
 
 
     class Meta:
         model = CustomUser
-        fields = ('email', 'username', 'password', 'rol', 'nombres' )
+        fields = ('email', 'username', 'password', 'rol', 'firs_name','last_name' )
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
