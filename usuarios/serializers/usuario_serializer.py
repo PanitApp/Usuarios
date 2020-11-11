@@ -13,7 +13,6 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         print(user.password)
         # Add custom claims
         token['rol'] = user.rol
-        token['nombres']
         return token
 
     def validate(self, attrs):
