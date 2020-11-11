@@ -29,10 +29,11 @@ class CustomUserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(required=True)
     rol = serializers.CharField(required=True)
     password = serializers.CharField(min_length=8, write_only=True, required=True)
+    nombres = serializers.CharField(required=True)
 
     class Meta:
         model = CustomUser
-        fields = ('email', 'username', 'password', 'rol' )
+        fields = ('email', 'username', 'password', 'rol', 'nombres' )
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
