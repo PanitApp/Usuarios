@@ -7,7 +7,7 @@ from django.urls import path
 from rest_framework_simplejwt import views as jwt_views
 from django.urls import path
 from rest_framework_simplejwt import views as jwt_views
-from usuarios.views.usuario_view import ObtainTokenPairWithColorView, CustomUserCreate, HelloWorldView, LogoutAndBlacklistRefreshTokenForUserView, UsuarioDetail,UsuarioList
+from usuarios.views.usuario_view import ObtainTokenPairWithColorView, CustomUserCreate, HelloWorldView, LogoutAndBlacklistRefreshTokenForUserView, UsuarioDetail,UsuarioList,RolList
 
 urlpatterns = [
     path('user/create/', CustomUserCreate.as_view(), name="create_user"),
@@ -16,6 +16,7 @@ urlpatterns = [
     path('hello/', HelloWorldView.as_view(), name='hello_world'),
     path('blacklist/', LogoutAndBlacklistRefreshTokenForUserView.as_view(), name='blacklist'),
     path('usuarios/', UsuarioList.as_view()),
+    path('roles/', RolList.as_view()),
     path('usuarios/<int:pk>', UsuarioDetail.as_view()),
 ]
 

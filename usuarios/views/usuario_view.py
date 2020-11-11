@@ -58,6 +58,20 @@ class UsuarioList(mixins.ListModelMixin,
         if username is not None:
             queryset = queryset.filter(username=username)
         return queryset
+
+class RolList(mixins.ListModelMixin,
+                  mixins.CreateModelMixin,
+                  generics.GenericAPIView):
+
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
     def get_queryset(self):
         """
         Optionally restricts the returned purchases to a given user,
