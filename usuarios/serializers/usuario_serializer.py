@@ -18,16 +18,16 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['rol'] = user.rol
         return token
 
-    def validate(self, attrs):
-        ldap_uri = os.environ.get('LDAP_URI')
+    #def validate(self, attrs):
+     #   ldap_uri = os.environ.get('LDAP_URI')
         
-        ldap_user = "cn=" + attrs['username'] + ",ou=users,dc=panitapp,dc=co"
-        ldap_password = attrs['password']
+      #  ldap_user = "cn=" + attrs['username'] + ",ou=users,dc=panitapp,dc=co"
+      #  ldap_password = attrs['password']
 
-        cnx = ldap.initialize(ldap_uri, bytes_mode=False)
+       # cnx = ldap.initialize(ldap_uri, bytes_mode=False)
 
-        cnx.bind_s(ldap_user, ldap_password)
-        return super().validate(attrs)
+        #cnx.bind_s(ldap_user, ldap_password)
+        #return super().validate(attrs)
 
 class CustomUserSerializer(serializers.ModelSerializer):
     """
