@@ -30,9 +30,9 @@ class HelloWorldView(APIView):
         print(request.user.username)
         print(request.user.email)
         print(request.user.first_name)
-        print(request.user.username)
+        print(request.user.last_name)
         print(request.user.rol)
-        return Response(data={"hello":"world"}, status=status.HTTP_200_OK)
+        return Response(data={"username":request.user.username, "email":request.user.email,"first_name":request.user.first_name,"last_name":request.user.last_name,"rol":request.user.rol}, status=status.HTTP_200_OK)
 
 class UsuarioList(mixins.ListModelMixin,
                   mixins.CreateModelMixin,
