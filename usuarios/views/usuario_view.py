@@ -7,6 +7,7 @@ from usuarios.serializers.usuario_serializer import MyTokenObtainPairSerializer,
 from rest_framework import mixins
 from rest_framework import generics
 from usuarios.models.usuario_model import CustomUser
+from rest_framework_simplejwt.backends import TokenBackend
 
 class ObtainTokenPairWithColorView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
@@ -26,7 +27,12 @@ class CustomUserCreate(mixins.ListModelMixin,
 class HelloWorldView(APIView):
 
     def get(self, request):
-        return Response(data={"hello":"world"}, status=status.HTTP_200_OK)
+        print(request.user.username)
+        print(request.user.email)
+        print(request.user.first_name)
+        print(request.user.last_name)
+        print(request.user.rol)
+        return Response(data={"username":request.user.username, "email":request.user.email,"first_name":request.user.first_name,"last_name":request.user.last_name,"rol":request.user.rol}, status=status.HTTP_200_OK)
 
 class UsuarioList(mixins.ListModelMixin,
                   mixins.CreateModelMixin,

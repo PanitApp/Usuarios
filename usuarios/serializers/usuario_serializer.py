@@ -1,9 +1,11 @@
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
 from usuarios.models.usuario_model import CustomUser
+
 from django.http import HttpResponse
 import ldap
 import os
+
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -36,11 +38,14 @@ class CustomUserSerializer(serializers.ModelSerializer):
     )
     username = serializers.CharField(required=True)
     rol = serializers.CharField(required=True)
+    last_name = serializers.CharField(required=True)
+    first_name = serializers.CharField(required=True)
     password = serializers.CharField(min_length=8, write_only=True, required=True)
+
 
     class Meta:
         model = CustomUser
-        fields = ('email', 'username', 'password', 'rol' )
+        fields = ('email', 'username', 'password', 'rol', 'first_name','last_name' )
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
