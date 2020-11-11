@@ -27,7 +27,11 @@ class CustomUserCreate(mixins.ListModelMixin,
 class HelloWorldView(APIView):
 
     def get(self, request):
-        print(request.user)
+        print(request.user.username)
+        print(request.user.email)
+        print(request.user.first_name)
+        print(request.user.username)
+        print(request.user.rol)
         return Response(data={"hello":"world"}, status=status.HTTP_200_OK)
 
 class UsuarioList(mixins.ListModelMixin,
