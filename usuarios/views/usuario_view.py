@@ -1,19 +1,39 @@
-from usuarios.models.usuario_model import Usuario
-from usuarios.serializers.usuario_serializer import UsuarioSerializer
-from rest_framework.views import APIView
+from rest_framework import status, permissions
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.views import APIView
+from rest_framework_simplejwt.tokens import RefreshToken
+from usuarios.serializers.usuario_serializer import MyTokenObtainPairSerializer, CustomUserSerializer
 from rest_framework import mixins
 from rest_framework import generics
-import ldap
-import os
+from usuarios.models.usuario_model import CustomUser
+
+class ObtainTokenPairWithColorView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
+
+
+class CustomUserCreate(mixins.ListModelMixin,
+                  mixins.CreateModelMixin,
+                  generics.GenericAPIView):
+
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+class HelloWorldView(APIView):
+
+    def get(self, request):
+        return Response(data={"hello":"world"}, status=status.HTTP_200_OK)
 
 class UsuarioList(mixins.ListModelMixin,
                   mixins.CreateModelMixin,
                   generics.GenericAPIView):
 
-    queryset = Usuario.objects.all()
-    serializer_class = UsuarioSerializer
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
@@ -26,10 +46,20 @@ class UsuarioList(mixins.ListModelMixin,
         Optionally restricts the returned purchases to a given user,
         by filtering against a `username` query parameter in the URL.
         """
-        queryset = Usuario.objects.all()
-        nombre_usuario = self.request.query_params.get('nombre_usuario', None)
-        if nombre_usuario is not None:
-            queryset = queryset.filter(nombre_usuario=nombre_usuario)
+        queryset = CustomUser.objects.all()
+        username = self.request.query_params.get('username', None)
+        if username is not None:
+            queryset = queryset.filter(username=username)
+        return queryset
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+        """
+        queryset = CustomUser.objects.all()
+        rol = self.request.query_params.get('rol', None)
+        if rol is not None:
+            queryset = queryset.filter(rol=rol)
         return queryset
 
 
@@ -38,8 +68,8 @@ class UsuarioDetail(mixins.RetrieveModelMixin,
                     mixins.DestroyModelMixin,
                     generics.GenericAPIView):
 
-    queryset = Usuario.objects.all()
-    serializer_class = UsuarioSerializer
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
@@ -50,31 +80,17 @@ class UsuarioDetail(mixins.RetrieveModelMixin,
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
 
-class UsuarioLogin(mixins.RetrieveModelMixin,
-                   generics.GenericAPIView):
 
-    queryset = Usuario.objects.all()
-    serializer_class = UsuarioSerializer
+class LogoutAndBlacklistRefreshTokenForUserView(APIView):
+    permission_classes = (permissions.AllowAny,)
+    authentication_classes = ()
 
-    def get(self, request, *args, **kwargs):
-        return self.retrieve(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-
-        ldap_uri = os.environ.get('LDAP_URI')
-        
-        user = "cn=" + "difcortesgu@unal.edu.co" + ",ou=users,dc=panitapp,dc=co"
-        password = "admin"
-
-        cnx = ldap.initialize(ldap_uri, bytes_mode=False)
-
+    def post(self, request):
         try:
-            cnx.bind_s(user, password)
-            print("Sirvio!!!!!")
-        except ldap.SERVER_DOWN:
-            print('LDAP server is not reachable')
-        except ldap.INVALID_CREDENTIALS:
-            print('Invalid LDAP credentials')
-
-        return self.get(request, *args, **kwargs)
-
+            refresh_token = request.data["refresh_token"]
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+            return Response(status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+            print(e)
